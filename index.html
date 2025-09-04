@@ -1,0 +1,576 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dobby Creative Writing Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+
+        .header h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+
+        .writing-modes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+
+        .mode-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+        }
+
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+
+        .input-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+
+        .input-section textarea, .input-section input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+
+        .input-section textarea:focus, .input-section input:focus {
+            outline: none;
+            border-color: #4ecdc4;
+        }
+
+
+        .input-section textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(78, 205, 196, 0.3);
+        }
+
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+
+        .output-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 200px;
+            border-left: 4px solid #4ecdc4;
+        }
+
+
+        .output-section h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+
+        .output-text {
+            color: #2d3748;
+            line-height: 1.6;
+            font-size: 1.05rem;
+            white-space: pre-wrap;
+        }
+
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4ecdc4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+        .settings-panel {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+
+        .settings-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+
+        .api-status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+
+        .api-status.demo {
+            background: #fef3cd;
+            color: #664d03;
+            border: 1px solid #f0ad4e;
+        }
+
+
+        .copy-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+
+        .copy-btn:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧙‍♂️ Dobby Creative Assistant</h1>
+            <p>Powered by Sentient's Open-Source Dobby AI Model</p>
+        </div>
+
+
+        <div class="api-status demo">
+            🚀 Demo Mode - Connect your Dobby API key for live generation
+        </div>
+
+
+        <div class="settings-panel">
+            <div class="settings-row">
+                <div class="input-section">
+                    <label for="apiKey">Fireworks API Key (Optional)</label>
+                    <input type="password" id="apiKey" placeholder="Enter your Fireworks API key">
+                </div>
+                <div class="input-section">
+                    <label for="temperature">Creativity Level</label>
+                    <input type="range" id="temperature" min="0.1" max="1.0" step="0.1" value="0.8">
+                    <span id="tempValue">0.8</span>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="writing-modes">
+            <button class="mode-btn active" data-mode="story">📖 Story Writing</button>
+            <button class="mode-btn" data-mode="dialogue">💬 Dialogue</button>
+            <button class="mode-btn" data-mode="poetry">🎭 Poetry</button>
+            <button class="mode-btn" data-mode="worldbuilding">🌍 World Building</button>
+            <button class="mode-btn" data-mode="character">👤 Character Development</button>
+        </div>
+
+
+        <div class="input-section">
+            <label for="prompt">Your Creative Prompt</label>
+            <textarea id="prompt" placeholder="Describe what you want Dobby to help create..."></textarea>
+        </div>
+
+
+        <div class="input-section">
+            <label for="genre">Genre/Style (Optional)</label>
+            <input type="text" id="genre" placeholder="e.g., sci-fi, mystery, comedy, Victorian">
+        </div>
+
+
+        <button class="generate-btn" onclick="generateContent()">
+            ✨ Generate with Dobby
+        </button>
+
+
+        <div class="output-section">
+            <h3>Dobby's Creation</h3>
+            <div class="output-text" id="output">
+                Click "Generate with Dobby" to see the magic happen! 🎪
+
+
+                This app showcases Dobby's creative capabilities in:
+                • Story Writing with rich narratives
+                • Natural dialogue generation
+                • Poetry and creative expression
+                • World-building and lore creation
+                • Character development and depth
+            </div>
+            <button class="copy-btn" onclick="copyToClipboard()" style="display: none;" id="copyBtn">
+                📋 Copy Text
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+        let currentMode = 'story';
+        
+        // Mode selection
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentMode = btn.dataset.mode;
+                updatePromptPlaceholder();
+            });
+        });
+
+
+        // Temperature slider
+        document.getElementById('temperature').addEventListener('input', (e) => {
+            document.getElementById('tempValue').textContent = e.target.value;
+        });
+
+
+        function updatePromptPlaceholder() {
+            const prompts = {
+                story: "Write a story about a time traveler who accidentally changes history...",
+                dialogue: "Create a conversation between two characters meeting for the first time...",
+                poetry: "Write a poem about the changing seasons and the passage of time...",
+                worldbuilding: "Describe a fantastical city where magic and technology coexist...",
+                character: "Develop a complex character with a mysterious past and hidden motivations..."
+            };
+            document.getElementById('prompt').placeholder = prompts[currentMode];
+        }
+
+
+        async function generateContent() {
+            const prompt = document.getElementById('prompt').value;
+            const genre = document.getElementById('genre').value;
+            const temperature = document.getElementById('temperature').value;
+            const apiKey = document.getElementById('apiKey').value;
+
+
+            if (!prompt.trim()) {
+                alert('Please enter a creative prompt!');
+                return;
+            }
+
+
+            const generateBtn = document.querySelector('.generate-btn');
+            const outputDiv = document.getElementById('output');
+            
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<div class="loading"></div>Dobby is creating...';
+            
+            // Simulate API call with demo content
+            try {
+                let result;
+                if (apiKey) {
+                    // Real API call to Dobby via Fireworks
+                    result = await callDobbyAPI(prompt, genre, temperature, apiKey, currentMode);
+                } else {
+                    // Demo mode with simulated content
+                    result = await simulateDobbyResponse(prompt, genre, currentMode);
+                }
+                
+                outputDiv.textContent = result;
+                document.getElementById('copyBtn').style.display = 'inline-block';
+                
+            } catch (error) {
+                outputDiv.textContent = `Error: ${error.message}`;
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '✨ Generate with Dobby';
+            }
+        }
+
+
+        async function callDobbyAPI(prompt, genre, temperature, apiKey, mode) {
+            const modeInstructions = {
+                story: "Write a compelling narrative story",
+                dialogue: "Create natural, engaging dialogue",
+                poetry: "Compose creative poetry",
+                worldbuilding: "Describe detailed world-building",
+                character: "Develop rich character backgrounds"
+            };
+
+
+            const systemPrompt = `You are Dobby, a creative AI assistant known for personality, engagement, and creativity. ${modeInstructions[mode]}. ${genre ? `Style: ${genre}.` : ''} Be creative, engaging, and show personality in your response.`;
+
+
+            const response = await fetch('https://api.fireworks.ai/inference/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: "accounts/sentientfoundation/models/dobby-unhinged-llama-3-3-70b-new",
+                    max_tokens: 1000,
+                    temperature: parseFloat(temperature),
+                    messages: [
+                        {
+                            role: "system",
+                            content: systemPrompt
+                        },
+                        {
+                            role: "user", 
+                            content: prompt
+                        }
+                    ]
+                })
+            });
+
+
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+
+
+            const data = await response.json();
+            return data.choices[0].message.content;
+        }
+
+
+        async function simulateDobbyResponse(prompt, genre, mode) {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 2000));
+
+
+            const responses = {
+                story: `*Dobby's eyes gleam with creative mischief*
+
+
+Ah, what a delicious prompt you've given me! Let me weave you a tale...
+
+
+${prompt.includes('time') ? 
+    'Time rippled around Elena like disturbed water as she stepped from the machine. The year was 1892, but something felt... wrong. The gas lamps flickered with electric bulbs, and horseless carriages hummed down cobblestone streets that should have echoed with hoofbeats.\n\n"What have I done?" she whispered, watching a newspaper boy hawk headlines about Tesla\'s new wireless telegraph—an invention that wouldn\'t exist for another century.\n\nBut it was the photograph in the newspaper that made her blood freeze: herself, standing beside President Harrison at the World\'s Fair opening. A woman who wouldn\'t be born for another 80 years, now part of history\'s fabric forever.' : 
+    'The story unfolds like origami in reverse, each fold revealing deeper mysteries. Your protagonist stands at the crossroads of possibility, where every choice echoes through the corridors of consequence...'
+}
+
+
+*Dobby grins* There's so much more where that came from! Shall we explore deeper?`,
+
+
+                dialogue: `*Dobby rubs hands together gleefully*
+
+
+Oh, dialogue! The music of character souls! Listen to this exchange...
+
+
+"You're not what I expected," Sarah said, studying the stranger across the coffee shop table.
+
+
+Marcus laughed, a sound like autumn leaves. "Expectations are just disappointments in fancy dress. What were you hoping for—a villain with a twirled mustache?"
+
+
+"Maybe." She stirred her latte thoughtfully. "The mysterious benefactor who's been paying my student loans for three years... I pictured someone more..."
+
+
+"Corporate? Intimidating? Wearing a suit worth more than your car?"
+
+
+Sarah's eyes narrowed. "How do you know about my car?"
+
+
+"Because," Marcus leaned forward, his smile fading, "I know everything about you, Sarah. And after today, you're going to know everything about me. Starting with why I've been watching you since you were seven."
+
+
+*Dobby bounces excitedly* The tension! The mystery! Shall we continue this dance of words?`,
+
+
+                poetry: `*Dobby's voice takes on a lyrical cadence*
+
+
+Poetry, the rebel language of the soul! Here's what your muse whispers...
+
+
+    Seasons spiral through their ancient dance,
+    While time, that cunning thief, advances—
+    Spring's green promises in winter's memory,
+    Summer's gold fading to autumn's reverie.
+
+
+    We measure moments in coffee cups,
+    In heartbeats, in the way light
+    Slants through windows at 4 PM,
+    Different each day, yet somehow right.
+
+
+    The earth keeps turning, we keep turning too,
+    Cells renewing, dreams reshaping,
+    Until we realize the secret truth:
+    We are the seasons—always changing,
+    Always beautiful, always becoming
+    Something new beneath the same old sun.
+
+
+*Dobby sighs contentedly* Poetry is just organized dreaming, isn't it?`,
+
+
+                worldbuilding: `*Dobby's eyes light up with world-builder's fever*
+
+
+Oh, you want worlds? Let me paint you New Arcanum!
+
+
+Imagine towering spires of crystallized lightning reaching into storm-painted skies, their surfaces crackling with trapped energy that powers the city's maglev networks. Below, in the Undergear District, Victorian-era clockwork mechanisms the size of buildings tick and whir, their brass gears turned by spirits bound in ethical contracts (renewable energy, but make it supernatural!).
+
+
+The Merchant Quarter floats on anti-gravity platforms, each shop a impossible geometry of folded space—bigger inside than outside, naturally. Techno-mages in augmented reality goggles cast spells through neural interfaces, while traditional wizards grumble about "kids these days" from their analog towers.
+
+
+But here's the delicious tension: magic and technology don't always play nice. Some days the whole city shimmers between dimensions when the ley lines cross fiber optic cables. Reality gets a bit... negotiable.
+
+
+*Dobby grins wickedly* And that's just the surface level! Want to dive deeper into the political intrigue?`,
+
+
+                character: `*Dobby leans in conspiratorially*
+
+
+Characters are my favorite puzzles! Let me introduce you to someone...
+
+
+Meet Dr. Evelyn Crace: By day, she's the city's most respected forensic pathologist, clinical and precise. But she carries secrets in her bones like marrow—literally. Every corpse whispers to her, not metaphorically, but actually speaks. The dead tell her their stories, their fears, their unfinished business.
+
+
+She became a pathologist not to solve murders, but to give voices to the voiceless. Yet there's one voice she can't bear to hear—her twin sister Emma, who died in a car accident Evelyn caused fifteen years ago. Emma's spirit follows her everywhere, offering forgiveness Evelyn won't accept.
+
+
+The twist? Evelyn's "gift" isn't supernatural—it's trauma-induced synesthesia mixed with genius-level deductive reasoning. Her subconscious processes crime scene details so rapidly that it manifests as "voices." But knowing the scientific explanation doesn't make the conversations less real to her.
+
+
+*Dobby's expression grows thoughtful* She's healing and broken simultaneously. Want to explore her next case?`
+            };
+
+
+            return responses[mode] || responses.story;
+        }
+
+
+        function copyToClipboard() {
+            const output = document.getElementById('output').textContent;
+            navigator.clipboard.writeText(output).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+
+        // Initialize
+        updatePromptPlaceholder();
+    </script>
+</body>
+</html>
