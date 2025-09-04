@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Weaver's Interface</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Fireworks.js for the visual effect -->
+    <script src="https://cdn.jsdelivr.net/npm/fireworks-js@2.10.7/dist/index.umd.js"></script>
+
+    <style>
+        /* Custom styles for the cosmic neural network theme */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a091e;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        /* Animated background */
+        .cosmic-background {
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+        }
+
+        /* Custom input and button styles with glow effects */
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-glow {
+            transition: all 0.3s ease;
+        }
+
+        .input-glow:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+
+        .btn-glow {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-glow:hover {
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Weaving loader animation */
+        .weaver-loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        .weaver-loader .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #00ffff;
+            animation: weave 1.5s infinite ease-in-out;
+        }
+        .weaver-loader .dot:nth-child(2) { animation-delay: 0.2s; }
+        .weaver-loader .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes weave {
+            0%, 100% { transform: scale(0.2); opacity: 0.5; }
+            50% { transform: scale(1.0); opacity: 1; }
+        }
+        
+        /* Custom scrollbar for output */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 255, 255, 0.4);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(0, 255, 255, 0.7);
+        }
+
+        /* Custom slider styles */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #00ffff;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #00ffff;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="cosmic-background"></div>
+    <div id="fireworks-container" class="absolute top-0 left-0 w-full h-full pointer-events-none z-50"></div>
+
+    <!-- SECTION A: Connection Hub -->
+    <section id="connection-hub" class="h-screen w-full flex items-center justify-center transition-opacity duration-700 ease-in-out">
+        <div class="text-center max-w-lg w-full p-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-2 tracking-wider">The Weaver's Interface</h1>
+            <p class="text-lg text-gray-300 mb-8">Authenticate your connection to the GRID</p>
+            <div class="space-y-6">
+                <!-- Dobby API Key input has been removed as requested -->
+                <input type="password" id="fireworks-api-key" placeholder="Enter Fireworks API Key" class="w-full bg-transparent border-2 border-gray-600 rounded-lg py-3 px-4 text-white placeholder-gray-400 input-glow">
+            </div>
+            <button id="connect-btn" class="w-full mt-8 bg-cyan-500 text-black font-bold py-3 px-6 rounded-lg btn-glow text-lg">
+                Engage the Loom
+            </button>
+            <p id="connection-error" class="text-red-400 mt-4 h-6"></p>
+        </div>
+    </section>
+
+    <!-- SECTION B: The Loom (Main Interface) -->
+    <main id="loom-interface" class="h-screen w-full flex flex-col p-4 md:p-6 opacity-0 hidden transition-opacity duration-700 ease-in-out">
+        <header class="flex-shrink-0 mb-4">
+            <h2 class="text-2xl font-bold text-white">The Weaver's Interface</h2>
+        </header>
+
+        <div class="flex flex-grow min-h-0 gap-6">
+            <!-- Left Sidebar: Parameters -->
+            <aside class="w-1/4 max-w-xs glassmorphism rounded-xl p-6 hidden md:block">
+                <h3 class="text-xl font-semibold mb-6 text-cyan-300">Parameters</h3>
+                <div class="space-y-8">
+                    <div>
+                        <label for="creativity-slider" class="block mb-2 text-sm font-medium text-gray-300">Creativity</label>
+                        <input id="creativity-slider" type="range" min="0" max="100" value="70" class="w-full">
+                        <div class="flex justify-between text-xs text-gray-400 mt-1">
+                            <span>Logical</span>
+                            <span>Abstract</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="depth-slider" class="block mb-2 text-sm font-medium text-gray-300">Depth</label>
+                        <input id="depth-slider" type="range" min="0" max="100" value="80" class="w-full">
+                        <div class="flex justify-between text-xs text-gray-400 mt-1">
+                            <span>Surface</span>
+                            <span>In-Depth</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="style-select" class="block mb-2 text-sm font-medium text-gray-300">Style</label>
+                        <select id="style-select" class="w-full bg-gray-700/50 border border-gray-600 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-cyan-500">
+                            <option>Technical</option>
+                            <option selected>Conversational</option>
+                            <option>Poetic</option>
+                            <option>Formal</option>
+                        </select>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content: Output -->
+            <div class="flex-grow flex flex-col glassmorphism rounded-xl p-6 min-w-0">
+                <div id="output-container" class="flex-grow overflow-y-auto custom-scrollbar pr-4">
+                    <!-- Placeholder, loader, or response appears here -->
+                    <div id="output-placeholder" class="h-full flex flex-col items-center justify-center text-gray-400">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                        <p class="text-lg">Output from the Loom will appear here.</p>
+                        <p class="text-sm">Begin by typing a prompt below.</p>
+                    </div>
+                    <div id="loader" class="hidden h-full items-center justify-center weaver-loader">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div id="dobby-response" class="prose prose-invert max-w-none text-gray-200"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Prompt -->
+        <footer class="flex-shrink-0 mt-6">
+            <div class="flex items-center gap-4 glassmorphism rounded-xl p-2">
+                <input type="text" id="prompt-input" placeholder="Weave your thoughts here..." class="flex-grow bg-transparent focus:outline-none text-lg py-3 px-4 text-white placeholder-gray-400">
+                <button id="weave-btn" class="bg-cyan-500 text-black font-bold py-3 px-6 rounded-lg btn-glow">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                </button>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const connectionHub = document.getElementById('connection-hub');
+            const loomInterface = document.getElementById('loom-interface');
+            const connectBtn = document.getElementById('connect-btn');
+            const fireworksApiKeyInput = document.getElementById('fireworks-api-key');
+            const connectionError = document.getElementById('connection-error');
+            
+            const weaveBtn = document.getElementById('weave-btn');
+            const promptInput = document.getElementById('prompt-input');
+            
+            const outputPlaceholder = document.getElementById('output-placeholder');
+            const loader = document.getElementById('loader');
+            const dobbyResponseContainer = document.getElementById('dobby-response');
+            
+            const fireworksContainer = document.getElementById('fireworks-container');
+            let fireworks = null;
+
+            // --- State ---
+            let isConnected = false;
+            let isLoading = false;
+            
+            // --- Fireworks Initialization ---
+            if (window.Fireworks) {
+                fireworks = new Fireworks(fireworksContainer, {
+                    autoresize: true,
+                    opacity: 0.5,
+                    acceleration: 1.05,
+                    friction: 0.97,
+                    gravity: 1.5,
+                    particles: 75,
+                    traceLength: 3,
+                    traceSpeed: 10,
+                    explosion: 5,
+                    intensity: 30,
+                    flickering: 50,
+                    lineStyle: 'round',
+                    hue: { min: 180, max: 200 }, // Shades of cyan
+                    delay: { min: 30, max: 60 },
+                    rocketsPoint: { min: 50, max: 50 },
+                    lineWidth: {
+                        explosion: { min: 1, max: 4 },
+                        trace: { min: 1, max: 2 }
+                    },
+                    brightness: { min: 50, max: 80 },
+                    decay: { min: 0.015, max: 0.03 },
+                    mouse: { click: false, move: false, max: 1 }
+                });
+            }
+
+            // --- Functions ---
+            const handleConnect = () => {
+                const fireworksKey = fireworksApiKeyInput.value.trim();
+
+                if (!fireworksKey) {
+                    connectionError.textContent = 'The Fireworks API key is required to connect.';
+                    return;
+                }
+                
+                // Simulate API key validation
+                connectionError.textContent = '';
+                isConnected = true;
+                
+                connectionHub.classList.add('opacity-0');
+                setTimeout(() => {
+                    connectionHub.classList.add('hidden');
+                    loomInterface.classList.remove('hidden');
+                    setTimeout(() => loomInterface.classList.remove('opacity-0'), 50);
+                }, 700);
+            };
+
+            const handleWeave = async () => {
+                if (isLoading || !promptInput.value.trim()) return;
+
+                isLoading = true;
+                outputPlaceholder.classList.add('hidden');
+                dobbyResponseContainer.innerHTML = '';
+                loader.classList.remove('hidden');
+                loader.classList.add('flex');
+                
+                const prompt = promptInput.value;
+                promptInput.value = '';
+
+                // --- MOCKED API CALL to Dobby Model ---
+                // In a real application, you would make a fetch request here.
+                const mockApiResponse = await mockDobbyAPI(prompt);
+                
+                loader.classList.add('hidden');
+                loader.classList.remove('flex');
+
+                typewriterEffect(mockApiResponse, dobbyResponseContainer, () => {
+                    isLoading = false;
+                    // Trigger fireworks on completion
+                    if (fireworks) {
+                        fireworks.start();
+                        setTimeout(() => fireworks.stop(), 4000); // Stop after 4 seconds
+                    }
+                });
+            };
+            
+            const typewriterEffect = (text, element, onComplete) => {
+                let i = 0;
+                element.innerHTML = '';
+                const speed = 20; // milliseconds per character
+
+                function type() {
+                    if (i < text.length) {
+                        element.innerHTML += text.charAt(i);
+                        i++;
+                        element.parentElement.scrollTop = element.parentElement.scrollHeight; // Auto-scroll
+                        setTimeout(type, speed);
+                    } else if (onComplete) {
+                        onComplete();
+                    }
+                }
+                type();
+            };
+
+            // This function simulates a call to the Dobby API.
+            const mockDobbyAPI = (prompt) => {
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        let response = `In response to your prompt, "${prompt}", the Loom has woven the following narrative: \n\nThe digital cosmos hums with latent energy. Across the GRID, data streams flow like celestial rivers, carrying fragments of knowledge and echoes of forgotten thoughts. It is here, in this boundless ocean of information, that new ideas are born—not from silicon alone, but from the collaborative spark between human intention and artificial intuition. The parameters you've set for creativity and depth guide my path through this digital tapestry, allowing me to pluck threads of logic, poetry, and insight to create something novel, yet resonant with your original query. The universe of possibility is vast, and we have only just begun to explore it together. What shall we weave next?`;
+                        resolve(response);
+                    }, 2500); // Simulate network delay
+                });
+            };
+
+            // --- Event Listeners ---
+            connectBtn.addEventListener('click', handleConnect);
+            weaveBtn.addEventListener('click', handleWeave);
+            promptInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    handleWeave();
+                }
+            });
+            
+            // Allow connecting with Enter key
+            fireworksApiKeyInput.addEventListener('keydown', (e) => {
+                 if (e.key === 'Enter') connectBtn.click();
+            });
+        });
+    </script>
+</body>
+</html>
